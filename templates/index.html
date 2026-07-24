@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web Scraper 🕷️</title>
+  <style>
+    :root {
+      --bg: #0f172a; --panel: #1e293b; --panel2: #273449;
+      --border: #334155; --text: #e2e8f0; --muted: #94a3b8;
+      --accent: #38bdf8; --accent2: #0ea5e9; --danger: #f87171; --warn: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.5;
+    }
+    header {
+      padding: 28px 20px 20px; text-align: center;
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      border-bottom: 1px solid var(--border);
+    }
+    header h1 { margin: 0 0 6px; font-size: 26px; }
+    header p { margin: 0; color: var(--muted); font-size: 14px; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px 16px 60px; }
+    .card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 14px; padding: 20px; margin-bottom: 20px;
+    }
+    label { display: block; font-size: 13px; color: var(--muted); margin: 0 0 6px; }
+    input[type="text"] {
+      width: 100%; padding: 12px 14px; font-size: 15px;
+      background: var(--panel2); color: var(--text);
+      border: 1px solid var(--border); border-radius: 10px; outline: none;
+    }
+    input[type="text"]:focus { border-color: var(--accent); }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .row > div { flex: 1; min-width: 220px; }
+    .actions { display: flex; gap: 10px; align-items: center; margin-top: 16px; flex-wrap: wrap; }
+    button {
+      cursor: pointer; border: none; border-radius: 10px; font-size: 15px;
+      font-weight: 600; padding: 12px 22px; transition: .15s;
+    }
+    .btn-primary { background: var(--accent2); color: #001019; }
+    .btn-primary:hover { background: var(--accent); }
+    .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); font-size: 13px; padding: 8px 14px; }
+    .btn-ghost:hover { color: var(--text); border-color: var(--accent); }
+    details { margin-top: 14px; }
+    summary { cursor: pointer; color: var(--accent); font-size: 13px; }
+    details .row { margin-top: 12px; }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+    code { background: #0b1220; padding: 2px 6px; border-radius: 5px; color: #7dd3fc; }
+    #status { min-height: 22px; margin: 4px 0 14px; font-size: 14px; }
+    .spinner {
+      display: inline-block; width: 16px; height: 16px; vertical-align: -3px;
+      border: 2px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .8s linear infinite; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .banner { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px; }
+    .banner.warn { background: rgba(251,191,36,.12); border: 1px solid var(--warn); color: var(--warn); }
+    .banner.err { background: rgba(248,113,113,.12); border: 1px solid var(--danger); color: var(--danger); }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .tab {
+      padding: 8px 14px; border-radius: 999px; font-size: 13px; cursor: pointer;
+      background: var(--panel2); border: 1px solid var(--border); color: var(--muted);
+    }
+    .tab.active { background: var(--accent2); color: #001019; border-color: var(--accent2); font-weight: 600; }
+    .meta { color: var(--muted); font-size: 13px; margin-bottom: 12px; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; }
+    table { border-collapse: collapse; width: 100%; font-size: 13px; }
+    th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: var(--panel2); position: sticky; top: 0; color: var(--text); white-space: nowrap; }
+    tr:hover td { background: rgba(56,189,248,.05); }
+    td a { color: var(--accent); word-break: break-all; }
+    td img { max-height: 46px; border-radius: 6px; }
+    .num { color: var(--muted); width: 40px; }
+    .dl { display: flex; gap: 10px; margin-bottom: 12px; }
+    .empty { color: var(--muted); text-align: center; padding: 40px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🕷️ Web Scraper</h1>
+    <p>แปะ URL ของเว็บ แล้วกดดึงข้อมูลออกมาดูเป็นตาราง — ดาวน์โหลดเป็น JSON / CSV ได้</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <label for="url">URL ของเว็บที่ต้องการดึง</label>
+      <input type="text" id="url" placeholder="เช่น https://books.toscrape.com/ หรือแปะลิงก์ที่ copy มา" />
+
+      <details>
+        <summary>ตัวเลือกขั้นสูง (เจาะจงข้อมูลด้วย CSS selector)</summary>
+        <div class="row">
+          <div>
+            <label for="selector">CSS selector (เลือก element ที่ต้องการ)</label>
+            <input type="text" id="selector" placeholder="เช่น article.product_pod" />
+            <div class="hint">เว้นว่าง = โหมดอัตโนมัติ (ดึง หัวข้อ/ลิงก์/รูป/ตาราง มาให้)</div>
+          </div>
+          <div>
+            <label for="fields">Fields (name=selector)</label>
+            <input type="text" id="fields" placeholder="title=h3 a@title, price=.price_color" />
+            <div class="hint">ใช้ <code>@attr</code> ดึง attribute เช่น <code>link=a@href</code></div>
+          </div>
+        </div>
+      </details>
+
+      <div class="actions">
+        <button class="btn-primary" id="go">ดึงข้อมูล</button>
+        <span class="hint">💡 ไม่รู้ selector? เปิด DevTools (F12) คลิกขวาที่ element → Copy → Copy selector</span>
+      </div>
+    </div>
+
+    <div id="status"></div>
+    <div id="result"></div>
+  </main>
+
+  <script>
+    let DATA = null;      // ผลลัพธ์ทั้งก้อนจาก server
+    let activeKey = null; // ชื่อ dataset ที่กำลังโชว์
+
+    const $ = (id) => document.getElementById(id);
+
+    async function run() {
+      const url = $("url").value.trim();
+      if (!url) { setStatus("กรุณาใส่ URL ก่อน", "err"); return; }
+
+      $("go").disabled = true;
+      setStatus('<span class="spinner"></span>กำลังดึงข้อมูล...', "");
+      $("result").innerHTML = "";
+
+      try {
+        const res = await fetch("/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            url,
+            selector: $("selector").value.trim(),
+            fields: $("fields").value.trim(),
+          }),
+        });
+        const json = await res.json();
+        if (!json.ok) { setStatus("❌ " + json.error, "err"); return; }
+        DATA = json;
+        render();
+      } catch (e) {
+        setStatus("❌ เกิดข้อผิดพลาด: " + e.message, "err");
+      } finally {
+        $("go").disabled = false;
+      }
+    }
+
+    function setStatus(html, cls) {
+      const el = $("status");
+      el.innerHTML = html;
+      el.className = "";
+    }
+
+    function render() {
+      const keys = Object.keys(DATA.datasets);
+      setStatus(`✅ ดึงสำเร็จ — พบข้อมูล ${DATA.count} รายการ`, "");
+
+      let html = "";
+      if (DATA.js_rendered) {
+        html += `<div class="banner warn">⚠️ เว็บนี้น่าจะ render ด้วย JavaScript — HTML ที่ได้แทบไม่มีเนื้อหา
+                 ข้อมูลจริงอาจถูกโหลดทีหลังด้วย JS (ต้องใช้ Playwright ถึงจะดึงได้)</div>`;
+      }
+      html += `<div class="meta">📄 <b>${escapeHtml(DATA.title || "(ไม่มี title)")}</b><br>
+               🔗 ${escapeHtml(DATA.url)} &nbsp;·&nbsp; โหมด: ${DATA.mode === "auto" ? "อัตโนมัติ" : "selector"}</div>`;
+
+      if (keys.length === 0) {
+        html += `<div class="card"><div class="empty">ไม่พบข้อมูลที่ดึงได้<br>
+                 ลองใส่ CSS selector ในตัวเลือกขั้นสูง</div></div>`;
+        $("result").innerHTML = html;
+        return;
+      }
+
+      html += `<div class="card">`;
+      html += `<div class="tabs">` +
+        keys.map((k) => {
+          const active = k === activeKey ? "active" : "";
+          return `<div class="tab ${active}" data-key="${escapeHtml(k)}">${escapeHtml(k)} (${DATA.datasets[k].length})</div>`;
+        }).join("") + `</div>`;
+      html += `<div id="table-area"></div>`;
+      html += `</div>`;
+      $("result").innerHTML = html;
+
+      if (!activeKey || !keys.includes(activeKey)) activeKey = keys[0];
+      document.querySelectorAll(".tab").forEach((t) =>
+        t.addEventListener("click", () => { activeKey = t.dataset.key; render(); })
+      );
+      renderTable();
+    }
+
+    function renderTable() {
+      const rows = DATA.datasets[activeKey] || [];
+      const area = $("table-area");
+      if (rows.length === 0) { area.innerHTML = `<div class="empty">ไม่มีข้อมูล</div>`; return; }
+
+      const cols = [...new Set(rows.flatMap((r) => Object.keys(r)))];
+      let html = `<div class="dl">
+        <button class="btn-ghost" onclick="download('json')">⬇ JSON</button>
+        <button class="btn-ghost" onclick="download('csv')">⬇ CSV</button>
+      </div>`;
+      html += `<div class="table-wrap"><table><thead><tr><th class="num">#</th>` +
+        cols.map((c) => `<th>${escapeHtml(c)}</th>`).join("") +
+        `</tr></thead><tbody>`;
+      rows.forEach((r, i) => {
+        html += `<tr><td class="num">${i + 1}</td>` +
+          cols.map((c) => `<td>${cell(c, r[c])}</td>`).join("") + `</tr>`;
+      });
+      html += `</tbody></table></div>`;
+      area.innerHTML = html;
+    }
+
+    function cell(col, val) {
+      if (val == null) return "";
+      const s = String(val);
+      if (/^https?:\/\//i.test(s)) {
+        if (col.toLowerCase().includes("image") || /\.(png|jpe?g|gif|webp|svg)/i.test(s))
+          return `<a href="${s}" target="_blank"><img src="${s}" loading="lazy" alt=""></a>`;
+        return `<a href="${s}" target="_blank">${escapeHtml(s)}</a>`;
+      }
+      return escapeHtml(s);
+    }
+
+    function download(type) {
+      const rows = DATA.datasets[activeKey] || [];
+      const safe = activeKey.replace(/[^a-zA-Z0-9]+/g, "_");
+      if (type === "json") {
+        dl(JSON.stringify(rows, null, 2), safe + ".json", "application/json");
+      } else {
+        const cols = [...new Set(rows.flatMap((r) => Object.keys(r)))];
+        const esc = (v) => {
+          const s = v == null ? "" : String(v);
+          return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+        };
+        const csv = [cols.join(",")]
+          .concat(rows.map((r) => cols.map((c) => esc(r[c])).join(",")))
+          .join("\n");
+        dl("﻿" + csv, safe + ".csv", "text/csv"); // BOM กันภาษาไทยเพี้ยนใน Excel
+      }
+    }
+
+    function dl(content, filename, mime) {
+      const blob = new Blob([content], { type: mime });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    $("go").addEventListener("click", run);
+    $("url").addEventListener("keydown", (e) => { if (e.key === "Enter") run(); });
+  </script>
+</body>
+</html>

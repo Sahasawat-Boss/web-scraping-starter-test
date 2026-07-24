@@ -1,0 +1,8 @@
+requests==2.32.3
+beautifulsoup4==4.14.3
+lxml==5.3.0
+flask>=3.1              # เว็บแอปหน้าบ้าน (app.py) — แปะ URL แล้วดูข้อมูลผ่านเบราว์เซอร์
+
+# --- Optional: สำหรับ scrape เว็บที่ render ด้วย JavaScript ---
+# ติดตั้งเพิ่มเมื่อจะใช้ scrapers/quotes_js_scraper.py เท่านั้น
+# playwright==1.49.0
